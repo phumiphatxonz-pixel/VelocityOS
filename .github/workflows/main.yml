@@ -1,6 +1,6 @@
 name: Build VelocityOS ISO
 on:
-  workflow_dispatch: # ให้เรากดปุ่มสั่งรันเองได้
+  workflow_dispatch:
 
 jobs:
   build:
@@ -12,8 +12,14 @@ jobs:
       - name: Build ISO using Docker
         run: |
           docker run --privileged --rm -v $(pwd):/workspace -w /workspace archlinux:latest /bin/bash -c "
+            # 1. เตรียมระบบและ Keyring (แก้ปัญหา Error: no secret key)
+            pacman-key --init
+            pacman-key --populate archlinux
             pacman -Syu --noconfirm git arch-install-scripts dosfstools libisoburn squashfs-tools mtools
-            chmod +x build.sh
+
+            # 2. หาตำแหน่งไฟล์ build.sh และรันจากจุดนั้น
+            # ปกติ ArcoLinuxB จะอยู่ในหน้าแรก หรือโฟลเดอร์หลัก
+            chmod +x *.sh
             ./build.sh
           "
 
